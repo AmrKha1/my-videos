@@ -1,0 +1,21 @@
+{
+  "name": "binly-dinosaurs",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render Main ../binly_dinosaurs_final.mp4 --codec=h264 --audio-codec=aac --audio-bitrate=320k --crf=16 --pixel-format=yuv420p"
+  },
+  "dependencies": {
+    "@fontsource/fraunces": "^5.3.0",
+    "@fontsource/inter": "^5.3.0",
+    "@remotion/cli": "^4.0.534",
+    "@remotion/install-whisper-cpp": "^4.0.534",
+    "@remotion/renderer": "^4.0.534",
+    "@types/react": "^19.1.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "remotion": "^4.0.534",
+    "typescript": "^5.6.3"
+  }
+}

@@ -1,0 +1,61 @@
+name: Render video
+
+on:
+  workflow_dispatch:
+    inputs:
+      project:
+        description: "Project folder name (e.g. dinosaurs)"
+        required: true
+      composition:
+        description: "Composition ID to render"
+        required: true
+        default: "Main"
+      scale:
+        description: "Scale: 1 = full quality, 0.5 = fast low-res preview"
+        required: true
+        default: "1"
+
+jobs:
+  render:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    env:
+      PROJECT: ${{ inputs.project }}
+      COMPOSITION: ${{ inputs.composition }}
+      SCALE: ${{ inputs.scale }}
+    defaults:
+      run:
+        working-directory: ${{ inputs.project }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ${{ inputs.project }}/package-lock.json
+
+      - name: Install Chrome system libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libnss3 libdbus-1-3 libatk1.0-0 libgbm-dev libasound2t64 \
+            libxrandr2 libxkbcommon-dev libxfixes3 libxcomposite1 libxdamage1 \
+            libatk-bridge2.0-0 libpango-1.0-0 libcairo2 libcups2
+
+      - name: Install project dependencies
+        run: npm ci
+
+      - name: Render
+        run: |
+          npx remotion render "$COMPOSITION" "out/$PROJECT.mp4" \
+            --scale="$SCALE" \
+            --concurrency=100% \
+            --codec=h264 --audio-codec=aac --audio-bitrate=320k
+
+      - name: Upload video
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.project }}-video
+          path: ${{ inputs.project }}/out/${{ inputs.project }}.mp4
+          compression-level: 0
+          retention-days: 30
